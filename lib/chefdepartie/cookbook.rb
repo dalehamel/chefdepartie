@@ -1,16 +1,8 @@
-require 'chef/environment'
-require 'chef/role'
+require 'chef'
 require 'chef/cookbook/metadata'
 require 'chef/cookbook_uploader'
-require 'chef'
 require 'librarian'
 require 'librarian/chef'
-require 'chef_zero/server'
-
-def start_server
-  server = ChefZero::Server.new(port: 4000)
-  server.start_background
-end
 
 def upload_cookbooks(path, books)
   loader = Chef::CookbookLoader.new(path)
@@ -60,47 +52,4 @@ def cheffile_cookbooks
   librarian.lock.manifests
 end
 
-def upload_site_roles(files)
-  roles = {}
-  files.each do |f|
-    role = role_from_file(f)
-    roles[role.name] = role # original name as hash key
-    role.name(role.name)
-  end
 
-  upload_roles(roles.values)
-
-  roles
-end
-
-def role_from_file(file)
-  role = Chef::Role.new
-  puts file
-  role.from_file(file)
-  role
-end
-
-def upload_roles(roles)
-  roles.each do |role|
-    role.save
-    puts "Uploaded #{role.name.inspect} role."
-  end
-end
-
-def main
-  start_server
-  Chef::Config.from_file('config.rb')
-  Dir.chdir("cookbooks")
-  books = Dir["cookbooks/*"]
-  roles = []
-  Find.find('roles'){ |f| roles << f if f =~ /\.rb$/}
-  upload_site_roles(roles)
-  puts "Uploading librarian cookbooks"
-  upload_cheffile
-  puts "Uploading site cookbooks"
-  upload_site_cookbooks(books)
-end
-
-main
-puts "Ready"
-sleep 60000

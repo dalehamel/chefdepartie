@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'chef'
-gem 'chef-zero'
-gem 'librarian-chef'
+gemspec
+
+group :test do
+  gem 'simplecov', '=0.10.0'
+end
+
