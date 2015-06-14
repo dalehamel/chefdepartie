@@ -5,22 +5,31 @@ require_relative 'chefdepartie/role'
 require_relative 'chefdepartie/cookbook'
 require_relative 'chefdepartie/databag'
 
-def run(**kwargs)
-  config = kwargs[:config]
-  cookbooks = kwargs[:cookbooks]
-  start_server
-  Chef::Config.from_file(config)
-  Dir.chdir(cookbooks)
-  books = Dir["cookbooks/*"]
-  roles = []
-  Find.find('roles'){ |f| roles << f if f =~ /\.rb$/}
-  upload_site_roles(roles)
-  puts "Uploading librarian cookbooks"
-  upload_cheffile
-  puts "Uploading site cookbooks"
-  upload_site_cookbooks(books)
+module Chefdepartie
+  def self.run(**kwargs)
+
+    # Load the configuration
+    config = kwargs[:config]
+    Chef::Config.from_file(config)
+
+    # Start the chef-zero server
+    server_thread = start_server
+
+    # Upload everything
+    upload_all
+
+    # Now that everything has been uploaded, we'll join the server thread
+    puts "Ready"
+    server_thread.join
+  end
+
+private
+
+  def self.upload_all
+    Chefdepartie::Roles.upload_all
+    Chefdepartie::Databags.upload_all
+    Chefdepartie::Cookbooks.upload_all
+  end
 end
 
-run(config: ENV['CHEFDEPARTIE_CONFIG'], cookbooks: ENV['CHEFDEPARTIE_COOKBOOKS'])
-puts "Ready"
-sleep 60000
+Chefdepartie.run(config: ENV['CHEFDEPARTIE_CONFIG']) # FIXME: use something better than an env var to get the config
