@@ -20,6 +20,12 @@ This gives you a full chef sandbox, and can be useful for things like CI or pack
 * View and edit data bags, without an internet connection
 * Bootstrap test nodes (vagrant images, cloud servers, etc)
 
+## Limitations
+
+Since chefdepartie is just a wrapper around chef-zero, it runs entirely in memory and has no persistence. This makes it a useful sandbox, but it shouldn't be relied on for anything non-ephemeral.
+
+chefdepartie really doesn't work with environments. Everything is assumed to be on the default environment.
+
 # Configuration
 
 create a normal chef config file, but you only need to specify the following values:
