@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    chefdepartie (0.0.0)
+    chefdepartie (0.0.1)
       chef (~> 12.3.0)
       chef-zero (~> 4.2.2)
       librarian-chef (~> 0.0.4)
@@ -93,7 +93,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.6.1)
+    rack (1.6.2)
     rake (10.4.2)
     rspec (3.3.0)
       rspec-core (~> 3.3.0)
