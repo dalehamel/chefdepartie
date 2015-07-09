@@ -1,5 +1,44 @@
 require 'chef'
 
+# We monkeypatch chefzero because it does something really stupid with databags, not sure why.
+# It prevents them from being mashes client side. This allows databags to by serialized
+# So that chef-client will load it as a mash instead of a hash
+# The change here is we comment out:
+#
+# data_bag_item = data_bag_item['raw_data']
+
+module ChefZero
+  module ChefData
+    class DataNormalizer
+      def self.normalize_data_bag_item(data_bag_item, data_bag_name, id, method)
+        if method == 'DELETE'
+          # TODO SERIOUSLY, WHO DOES THIS MANY EXCEPTIONS IN THEIR INTERFACE
+          if !(data_bag_item['json_class'] == 'Chef::DataBagItem' && data_bag_item['raw_data'])
+            data_bag_item['id'] ||= id
+            data_bag_item = { 'raw_data' => data_bag_item }
+            data_bag_item['chef_type'] ||= 'data_bag_item'
+            data_bag_item['json_class'] ||= 'Chef::DataBagItem'
+            data_bag_item['data_bag'] ||= data_bag_name
+            data_bag_item['name'] ||= "data_bag_item_#{data_bag_name}_#{id}"
+          end
+        else
+          # If it's not already wrapped with raw_data, wrap it.
+          if data_bag_item['json_class'] == 'Chef::DataBagItem' && data_bag_item['raw_data']
+            #data_bag_item = data_bag_item['raw_data']
+          end
+          # Argh.  We don't do this on GET, but we do on PUT and POST????
+          if %w(PUT POST).include?(method)
+            data_bag_item['chef_type'] ||= 'data_bag_item'
+            data_bag_item['data_bag'] ||= data_bag_name
+          end
+          data_bag_item['id'] ||= id
+        end
+        data_bag_item
+      end
+    end
+  end
+end
+
 module Chefdepartie
   module Databags
     def self.upload_all

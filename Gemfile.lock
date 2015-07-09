@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    chefdepartie (0.0.1)
+    chefdepartie (0.0.3)
       chef (~> 12.3.0)
       chef-zero (~> 4.2.2)
       librarian-chef (~> 0.0.4)
