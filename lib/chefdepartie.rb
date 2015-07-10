@@ -14,7 +14,7 @@ module Chefdepartie
     background = kwargs[:background]
 
     # Start the chef-zero server
-    self.server_thread = start_server
+    self.server_thread = start_server(background)
 
     # Upload everything
     upload_all
@@ -23,7 +23,7 @@ module Chefdepartie
     puts 'Ready'
 
     # Join the chef server thread now that everything has been uploaded
-    server_thread.join unless background
+    self.server_thread.join unless background
   end
 
   def self.stop
@@ -33,13 +33,21 @@ module Chefdepartie
 
   private
 
+  def self.server_thread=(thread)
+    @@server_thread = thread
+  end
+
+  def self.server_thread
+    @@server_thread
+  end
+
   def self.upload_all
     Chefdepartie::Roles.upload_all
     Chefdepartie::Databags.upload_all
     Chefdepartie::Cookbooks.upload_all
   end
 
-  def load_config(config_file, config)
+  def self.load_config(config_file, config)
     # Load config from config file if provided
     Chef::Config.from_file(config_file) if File.exist?(config_file)
 
