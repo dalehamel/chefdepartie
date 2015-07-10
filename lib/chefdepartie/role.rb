@@ -3,16 +3,15 @@ require 'chef/role'
 
 module Chefdepartie
   module Roles
-
     def self.upload_all
-      puts "Uploading roles"
+      puts 'Uploading roles'
       cookbooks = File.dirname(Chef::Config[:cookbook_path])
       roles = []
-      Find.find(File.join(cookbooks,'roles')){ |f| roles << f if f =~ /\.rb$/}
+      Find.find(File.join(cookbooks, 'roles')) { |f| roles << f if f =~ /\.rb$/ }
       upload_site_roles(roles)
     end
 
-  private
+    private
 
     def self.upload_site_roles(files)
       roles = {}

@@ -5,31 +5,49 @@ require_relative 'chefdepartie/role'
 require_relative 'chefdepartie/cookbook'
 require_relative 'chefdepartie/databag'
 
+# Chefdepartie root namespace for core module commands
 module Chefdepartie
   def self.run(**kwargs)
-
     # Load the configuration
-    config = kwargs[:config]
-    Chef::Config.from_file(config)
+    config_file = kwargs[:config_file] || ENV['CHEFDEPARTIE_CONFIG']
+    load_config(config_file, kwargs[:config])
+    background = kwargs[:background]
 
     # Start the chef-zero server
-    server_thread = start_server
+    self.server_thread = start_server
 
     # Upload everything
     upload_all
 
-    # Now that everything has been uploaded, we'll join the server thread
-    puts "Ready"
-    server_thread.join
+    # Notify that the chef server is ready
+    puts 'Ready'
+
+    # Join the chef server thread now that everything has been uploaded
+    server_thread.join unless background
   end
 
-private
+  def self.stop
+    puts 'Stopping server'
+    server_thread.stop
+  end
+
+  private
 
   def self.upload_all
     Chefdepartie::Roles.upload_all
     Chefdepartie::Databags.upload_all
     Chefdepartie::Cookbooks.upload_all
   end
-end
 
-Chefdepartie.run(config: ENV['CHEFDEPARTIE_CONFIG']) # FIXME: use something better than an env var to get the config
+  def load_config(config_file, config)
+    # Load config from config file if provided
+    Chef::Config.from_file(config_file) if File.exist?(config_file)
+
+    # Load config from hash
+    if config && config.is_a?(Hash)
+      config.each do |k, v|
+        Chef::Config.send(k.to_sym, v)
+      end
+    end
+  end
+end

@@ -13,7 +13,7 @@ module ChefZero
       def self.normalize_data_bag_item(data_bag_item, data_bag_name, id, method)
         if method == 'DELETE'
           # TODO SERIOUSLY, WHO DOES THIS MANY EXCEPTIONS IN THEIR INTERFACE
-          if !(data_bag_item['json_class'] == 'Chef::DataBagItem' && data_bag_item['raw_data'])
+          unless data_bag_item['json_class'] == 'Chef::DataBagItem' && data_bag_item['raw_data']
             data_bag_item['id'] ||= id
             data_bag_item = { 'raw_data' => data_bag_item }
             data_bag_item['chef_type'] ||= 'data_bag_item'
@@ -24,7 +24,7 @@ module ChefZero
         else
           # If it's not already wrapped with raw_data, wrap it.
           if data_bag_item['json_class'] == 'Chef::DataBagItem' && data_bag_item['raw_data']
-            #data_bag_item = data_bag_item['raw_data']
+            # data_bag_item = data_bag_item['raw_data']
           end
           # Argh.  We don't do this on GET, but we do on PUT and POST????
           if %w(PUT POST).include?(method)
@@ -42,13 +42,13 @@ end
 module Chefdepartie
   module Databags
     def self.upload_all
-      puts "Uploading databags"
+      puts 'Uploading databags'
       cookbooks = File.dirname(Chef::Config[:cookbook_path])
-      bags = Dir[File.join(cookbooks,'data_bags','/*')]
+      bags = Dir[File.join(cookbooks, 'data_bags', '/*')]
       upload_all_data_bags(bags)
     end
 
-  private
+    private
 
     def self.upload_data_bag_items(items)
       current_bags = Chef::DataBag.list.keys.to_set
@@ -75,7 +75,7 @@ module Chefdepartie
 
       data_bags.each do |data_bag|
         bag_name = File.basename(data_bag)
-        files = Dir.glob(File.join(data_bag,"*.json")).flatten
+        files = Dir.glob(File.join(data_bag, '*.json')).flatten
 
         files.each do |item_file|
           raw_data = Chef::JSONCompat.from_json(IO.read(item_file))
@@ -96,8 +96,8 @@ module Chefdepartie
 
     def self.is_encrypted_data_bag?(raw_data)
       # TODO: use Chef::EncryptedDataBagItem::CheckEncrypted when we move to Chef 12
-      first_sub_item = Array(raw_data.find { |k, v| k != 'id' }).last
-      !!(first_sub_item.kind_of?(Hash) && first_sub_item['encrypted_data'] && first_sub_item['cipher'])
+      first_sub_item = Array(raw_data.find { |k, _v| k != 'id' }).last
+      !!(first_sub_item.is_a?(Hash) && first_sub_item['encrypted_data'] && first_sub_item['cipher'])
     end
   end
 end

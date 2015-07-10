@@ -5,21 +5,21 @@ require 'librarian'
 require 'librarian/chef'
 
 module Chefdepartie
+  # Handle finding and uploading cookbooks
   module Cookbooks
-
     def self.upload_all
       cookbooks = File.dirname(Chef::Config[:cookbook_path])
       Dir.chdir(cookbooks) do
-        puts "Uploading librarian cookbooks"
+        puts 'Uploading librarian cookbooks'
         upload_cheffile
 
-        puts "Uploading site cookbooks"
-        books = Dir["cookbooks/*"]
+        puts 'Uploading site cookbooks'
+        books = Dir['cookbooks/*']
         upload_site_cookbooks(books)
       end
     end
 
-  private
+    private
 
     def self.upload_cookbooks(path, books)
       loader = Chef::CookbookLoader.new(path)
@@ -27,14 +27,14 @@ module Chefdepartie
       books = books.collect do |name|
         status = :new
         cookbook = loader.load_cookbook(name)
-        raise "could not load cookbook #{name} " if cookbook.nil?
+        fail "could not load cookbook #{name} " if cookbook.nil?
         cookbook
       end.compact
 
       rest = Chef::REST.new(Chef::Config[:chef_server_url])
 
       begin
-        Chef::CookbookUploader.new(books, {force: true, rest: rest}).upload_cookbooks
+        Chef::CookbookUploader.new(books, force: true, rest: rest).upload_cookbooks
       rescue SystemExit => e
         raise "Cookbook upload exited with status #{e.status}"
       end
@@ -59,8 +59,8 @@ module Chefdepartie
 
     def self.upload_cheffile
       unless ENV['NO_LIBRARIAN']
-        system("librarian-chef install")
-        upload_cookbooks("tmp/librarian/cookbooks", cheffile_cookbooks.map(&:name))
+        system('librarian-chef install')
+        upload_cookbooks('tmp/librarian/cookbooks', cheffile_cookbooks.map(&:name))
       end
     end
 
