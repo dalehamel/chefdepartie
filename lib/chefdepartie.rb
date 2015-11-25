@@ -9,7 +9,7 @@ require_relative 'chefdepartie/databag'
 module Chefdepartie
   def self.run(**kwargs)
     # Load the configuration
-    config_file = kwargs[:config_file] || ENV['CHEFDEPARTIE_CONFIG']
+    config_file = kwargs[:config_file] || ENV['CHEFDEPARTIE_CONFIG'] || ''
     load_config(config_file, kwargs[:config])
     background = kwargs[:background]
 
@@ -49,7 +49,7 @@ module Chefdepartie
 
   def self.load_config(config_file, config)
     # Load config from config file if provided
-    Chef::Config.from_file(config_file) if File.exist?(config_file)
+    Chef::Config.from_file(config_file) if (!config_file.empty? && File.exist?(config_file))
 
     # Load config from hash
     if config && config.is_a?(Hash)
