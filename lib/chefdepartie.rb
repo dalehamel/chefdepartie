@@ -1,9 +1,12 @@
 require 'chef'
+require 'openssl'
+require 'tempfile'
 
 require_relative 'chefdepartie/server'
 require_relative 'chefdepartie/role'
 require_relative 'chefdepartie/cookbook'
 require_relative 'chefdepartie/databag'
+require_relative 'chefdepartie/cache'
 
 # Chefdepartie root namespace for core module commands
 module Chefdepartie
@@ -14,7 +17,7 @@ module Chefdepartie
     background = kwargs[:background]
 
     # Start the chef-zero server
-    self.server_thread = start_server(background)
+    self.server_thread = Server.start_server(background, cache: kwargs[:cache])
 
     # Upload everything
     upload_all
@@ -53,6 +56,13 @@ module Chefdepartie
 
     # Load config from hash
     if config && config.is_a?(Hash)
+      config[:node_name] ||= 'chef-zero'
+      unless config[:client_key]
+        client_key = Tempfile.new('chef-zero-client')
+        client_key.write(OpenSSL::PKey::RSA.new(2048).to_s)
+        client_key.close
+        config[:client_key] = client_key.path
+      end
       config.each do |k, v|
         Chef::Config.send(k.to_sym, v)
       end

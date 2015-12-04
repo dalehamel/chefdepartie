@@ -78,6 +78,7 @@ module Chefdepartie
         files = Dir.glob(File.join(data_bag, '*.json')).flatten
 
         files.each do |item_file|
+          next if Cache.cache(item_file)
           raw_data = Chef::JSONCompat.from_json(IO.read(item_file))
 
           item = Chef::DataBagItem.new

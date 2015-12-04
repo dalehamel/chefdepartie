@@ -7,7 +7,7 @@ module Chefdepartie
       puts 'Uploading roles'
       cookbooks = File.dirname(Chef::Config[:cookbook_path])
       roles = []
-      Find.find(File.join(cookbooks, 'roles')) { |f| roles << f if f =~ /\.rb$/ }
+      Find.find(File.join(cookbooks, 'roles')) { |f| roles << f if f =~ /\.rb$/ && !Cache.cache(f) }
       upload_site_roles(roles)
     end
 
@@ -28,7 +28,6 @@ module Chefdepartie
 
     def self.role_from_file(file)
       role = Chef::Role.new
-      puts file
       role.from_file(file)
       role
     end

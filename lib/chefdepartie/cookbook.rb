@@ -25,7 +25,8 @@ module Chefdepartie
       loader = Chef::CookbookLoader.new(path)
 
       books = books.collect do |name|
-        status = :new
+        next if Cache.cache(File.join(path, name))
+        puts "Will upload #{name}"
         cookbook = loader.load_cookbook(name)
         fail "could not load cookbook #{name} " if cookbook.nil?
         cookbook
