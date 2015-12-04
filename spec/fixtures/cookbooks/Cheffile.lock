@@ -1,0 +1,10 @@
+SITE
+  remote: https://supermarket.chef.io/api/v1
+  specs:
+    accumulator (0.2.0)
+    ark (0.6.0)
+
+DEPENDENCIES
+  accumulator (= 0.2.0)
+  ark (= 0.6.0)
+

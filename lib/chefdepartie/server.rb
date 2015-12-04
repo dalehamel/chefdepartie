@@ -2,23 +2,67 @@ require 'chef_zero/server'
 require 'uri/generic'
 
 module Chefdepartie
-
   module Server
     extend self
-    def start_server(background, cache: nil)
-      port = URI(Chef::Config[:chef_server_url]).port
-      opts = { host: '0.0.0.0', port: port }#, log_level: :debug }
-      opts.merge!({data_store: Cache.setup(cache) }) if cache
-      server = ChefZero::Server.new(opts)
 
-      if background
-        server.start_background
-        server
+    def start
+      @server = ChefZero::Server.new(@opts)
+
+      if @background
+        @server.start_background
       else
-        Thread.new do
+        @server_thread = Thread.new do
           server.start
         end
       end
+    end
+
+    def join
+      @server_thread.join unless @background
+    end
+
+    def stop
+      puts 'Stopping server'
+      @server_thread.nil? ? @server.stop : @server_thread.stop
+    end
+
+    def upload_all
+      Chefdepartie::Roles.upload_all
+      Chefdepartie::Databags.upload_all
+      Chefdepartie::Cookbooks.upload_all
+    end
+
+    # Load chef config from hash or file
+    def configure(kwargs)
+      config_file = kwargs[:config_file] || ENV['CHEFDEPARTIE_CONFIG'] || ''
+      # Load config from config file if provided
+      Chef::Config.from_file(config_file) if !config_file.empty? && File.exist?(config_file)
+
+      config = kwargs[:config]
+      # Load config from hash
+      if config && config.is_a?(Hash)
+        config[:node_name] ||= 'chef-zero'
+        config[:client_key] ||= fake_key
+        config.each do |k, v|
+          Chef::Config.send(k.to_sym, v)
+        end
+      end
+
+      @background = kwargs[:background]
+      @cache = kwargs[:cache]
+
+      port = URI(Chef::Config[:chef_server_url]).port
+      @opts = { host: '0.0.0.0', port: port } # , log_level: :debug }
+      @opts.merge!(data_store: Cache.setup(@cache)) if @cache
+    end
+
+  private
+
+    def fake_key
+      client_key = Tempfile.new('chef-zero-client')
+      client_key.write(OpenSSL::PKey::RSA.new(2048).to_s)
+      client_key.close
+      client_key.path
     end
   end
 end

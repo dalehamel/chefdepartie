@@ -13,14 +13,11 @@ Gem::Specification.new do |spec|
   spec.homepage    = 'https://rubygems.org/gems/chefdepartie'
   spec.license     = 'MIT'
 
-  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ['lib']
-
-  spec.add_runtime_dependency 'chef', '~> 12.3.0'
-  spec.add_runtime_dependency 'chef-zero', '~> 4.2.2'
+  spec.add_runtime_dependency 'chef', '~> 12.4', '>= 12.4.3'
+  spec.add_runtime_dependency 'chef-zero', '~> 4.2', '>= 4.2.2'
   spec.add_runtime_dependency 'librarian-chef', '~> 0.0.4'
   spec.add_runtime_dependency 'cityhash', '~> 0.8.1'
-  spec.add_development_dependency 'minitest', '~> 5.6'
+  spec.add_development_dependency 'rake', ['=10.4.2']
+  spec.add_development_dependency 'simplecov', ['=0.10.0']
+  spec.add_development_dependency 'rspec', ['=3.4.0']
 end

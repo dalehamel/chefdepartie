@@ -1,2 +1,6 @@
-cookbooks
 *.gem
+*.swp
+*.swo
+coverage
+spec/fixtures/cookbooks/tmp
+spec/fixtures/cookbooks/.librarian

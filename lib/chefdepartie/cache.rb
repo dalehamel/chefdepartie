@@ -10,7 +10,7 @@ module Chefdepartie
     def setup(path)
       FileUtils.mkdir_p(File.join(path, 'organizations', 'chef'))
       @path = File.join(path, 'cache.dat')
-      if File.exists?(@path) then restore  else @cache = {} end
+      if File.exist?(@path) then restore  else @cache = {} end
       ds = ChefZero::DataStore::RawFileStore.new(File.join(path))
       ChefZero::DataStore::DefaultFacade.new(ds, false, false)
     end
@@ -35,10 +35,10 @@ module Chefdepartie
       dump
     end
 
-  private
+    private
 
     def hashdir(path)
-      hash = ""
+      hash = ''
       Dir["#{path}/**/*"].each do |path|
         hash += CityHash.hash128(File.read(path)).to_s if File.file?(path)
       end
@@ -54,7 +54,7 @@ module Chefdepartie
     end
 
     def to_key(file)
-      file.gsub(/^#{File.dirname(Chef::Config[:cookbook_path])}/,'')
+      file.gsub(/^#{File.dirname(Chef::Config[:cookbook_path])}/, '')
     end
   end
 end

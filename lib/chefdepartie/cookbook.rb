@@ -1,8 +1,10 @@
 require 'chef'
 require 'chef/cookbook/metadata'
 require 'chef/cookbook_uploader'
+require "chef/cookbook/syntax_check"
 require 'librarian'
 require 'librarian/chef'
+require 'fileutils'
 
 module Chefdepartie
   # Handle finding and uploading cookbooks
@@ -28,6 +30,8 @@ module Chefdepartie
         next if Cache.cache(File.join(path, name))
         puts "Will upload #{name}"
         cookbook = loader.load_cookbook(name)
+        c = Chef::Cookbook::SyntaxCheck.for_cookbook(name, path)
+        c.ruby_files.concat(c.template_files).each { |f| c.validated(f) }
         fail "could not load cookbook #{name} " if cookbook.nil?
         cookbook
       end.compact
@@ -60,7 +64,8 @@ module Chefdepartie
 
     def self.upload_cheffile
       unless ENV['NO_LIBRARIAN']
-        system('librarian-chef install')
+        FileUtils.mkdir_p('tmp/librarian/cookbooks')
+        system('librarian-chef install --quiet --path tmp/librarian/cookbooks')
         upload_cookbooks('tmp/librarian/cookbooks', cheffile_cookbooks.map(&:name))
       end
     end
