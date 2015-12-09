@@ -51,8 +51,10 @@ module Chefdepartie
       @background = kwargs[:background]
       @cache = kwargs[:cache]
 
-      port = URI(Chef::Config[:chef_server_url]).port
-      @opts = { host: '0.0.0.0', port: port } # , log_level: :debug }
+      uri = URI(Chef::Config[:chef_server_url])
+      host = '0.0.0.0'
+      host = '127.0.0.1' if (uri.host == '127.0.0.1' || uri.host == 'localhost') # listen on everything unless explicitly localhost.
+      @opts = { host: host, port: uri.port }
       @opts.merge!(data_store: Cache.setup(@cache)) if @cache
     end
 
