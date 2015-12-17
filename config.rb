@@ -1,5 +1,0 @@
-chef_server_url  'http://localhost:4000'
-client_key '/home/dale.hamel/.chef/configs/shopify/client.pem'
-encrypted_data_bag_secret '/home/dale.hamel/.chef/configs/shopify/encrypted_data_bag_secret'
-cookbook_path '/home/dale.hamel/workspace/shopify/cookbooks/cookbooks'
-node_name 'foo'

@@ -71,7 +71,13 @@ module Chefdepartie
     # Takes a list of data bag names, and uploads all data bag items from within that bag.
     def self.upload_all_data_bags(data_bags)
       items = []
-      secret = Chef::EncryptedDataBagItem.load_secret(Chef::Config[:encrypted_data_bag_secret])
+
+      secret = if File.exists?(Chef::Config[:encrypted_data_bag_secret])
+        Chef::EncryptedDataBagItem.load_secret(Chef::Config[:encrypted_data_bag_secret])
+      else
+        # if the fire doesn't exist, try the string directly.
+        Chef::Config[:encrypted_data_bag_secret].strip
+      end
 
       data_bags.each do |data_bag|
         bag_name = File.basename(data_bag)
