@@ -8,8 +8,9 @@ module Chefdepartie
   module Cache
     extend self
     def setup(path)
-      FileUtils.mkdir_p(File.join(path, 'organizations', 'chef'))
+      @storage = File.join(path, 'organizations', 'chef')
       @path = File.join(path, 'cache.dat')
+      FileUtils.mkdir_p(@storage)
       if File.exist?(@path) then restore  else @cache = {} end
       ds = ChefZero::DataStore::RawFileStore.new(File.join(path))
       ChefZero::DataStore::DefaultFacade.new(ds, false, false)
@@ -19,6 +20,7 @@ module Chefdepartie
       return false unless cache?
       hash = File.file?(path) ? CityHash.hash128(File.read(path)) : hashdir(path)
       hit = @cache[to_key(path)] == hash
+      hit = false unless File.exists?(File.join(@storage, to_key(path)))
       unless hit
         @cache[to_key(path)] = hash
         dump
@@ -53,8 +55,15 @@ module Chefdepartie
       File.binwrite(@path, Marshal.dump(@cache))
     end
 
-    def to_key(file)
-      file.gsub(/^#{File.dirname(Chef::Config[:cookbook_path])}/, '')
+    def to_key(path)
+      case path
+      when /\/data_bags\//
+        path.gsub(/.*data_bags/, 'data').gsub('.json', '')
+      when /\/roles\//
+        File.join('roles', path.gsub(/.*roles\//, '').gsub('/', '--').gsub('.rb', ''))
+      when /cookbooks\//
+        path.gsub(/.*cookbooks/, 'cookbooks')
+      end
     end
   end
 end
