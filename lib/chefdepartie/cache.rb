@@ -52,6 +52,7 @@ module Chefdepartie
     end
 
     def dump
+      FileUtils.mkdir_p(File.dirname(@path))
       File.binwrite(@path, Marshal.dump(@cache))
     end
 
