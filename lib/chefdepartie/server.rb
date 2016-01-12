@@ -23,7 +23,11 @@ module Chefdepartie
 
     def stop
       puts 'Stopping server'
-      @server_thread.nil? ? @server.stop : @server_thread.stop
+      if @background
+        @server.stop if @server
+      else
+        @server_thread.stop if @server_thread
+      end
     end
 
     def upload_all

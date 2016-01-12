@@ -55,7 +55,8 @@ module Chefdepartie
 
       items.each do |item|
         bag_name = item.data_bag
-        unless current_bags.include?(bag_name)
+        unless current_bags.include?(bag_name) || current_bags.include?(bag_name.inspect)
+          puts "Will create #{bag_name.inspect}"
           bag = Chef::DataBag.new
           bag.name(bag_name)
           bag.create
@@ -88,7 +89,7 @@ module Chefdepartie
           raw_data = Chef::JSONCompat.from_json(IO.read(item_file))
 
           item = Chef::DataBagItem.new
-          item.data_bag bag_name
+          item.data_bag(bag_name)
           if is_encrypted_data_bag?(raw_data)
             item.raw_data = Chef::EncryptedDataBagItem.new(raw_data, secret).to_hash
           else
