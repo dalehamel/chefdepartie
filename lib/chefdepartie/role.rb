@@ -5,9 +5,11 @@ module Chefdepartie
   module Roles
     def self.upload_all
       puts 'Uploading roles'
-      cookbooks = File.dirname(Chef::Config[:cookbook_path])
       roles = []
-      Find.find(File.join(cookbooks, 'roles')) { |f| roles << f if f =~ /\.rb$/ && !Cache.cache(f) }
+      role_path = [ Chef::Config[:role_path] ].flatten
+      role_path.each do |role_path|
+        Find.find(role_path) { |f| roles << f if f =~ /\.rb$/ && !Cache.cache(f) }
+      end
       upload_site_roles(roles)
     end
 
