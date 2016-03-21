@@ -62,8 +62,8 @@ module Chefdepartie
         path.gsub(/.*data_bags/, 'data').gsub('.json', '')
       when /\/roles\//
         File.join('roles', path.gsub(/.*roles\//, '').gsub('/', '--').gsub('.rb', ''))
-      when /cookbooks\//
-        path.gsub(/.*cookbooks/, 'cookbooks')
+      when /cookbooks[^\/]*\//
+        path.gsub(/.*cookbooks([^\/]*)/, 'cookbooks\1')
       end
     end
   end

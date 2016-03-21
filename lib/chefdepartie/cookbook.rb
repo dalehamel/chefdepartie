@@ -10,13 +10,13 @@ module Chefdepartie
   # Handle finding and uploading cookbooks
   module Cookbooks
     def self.upload_all
-      Dir.chdir(Chef::Config[:chef_repo_path].first) do
+      Dir.chdir(Chef::Config[:chef_repo_path]) do
         puts 'Uploading librarian cookbooks'
         upload_cheffile
 
         puts 'Uploading site cookbooks'
         books = []
-        cookbook_path = Chef::Config[:cookbook_path]
+        cookbook_path = [Chef::Config[:cookbook_path]].flatten
         cookbook_path.each do |p|
           p.chomp!("/")
           books << Dir["#{p.gsub(/^..\//, '')}/*"]
