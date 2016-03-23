@@ -43,9 +43,13 @@ module Chefdepartie
   module Databags
     def self.upload_all
       puts 'Uploading databags'
-      cookbooks = File.dirname(Chef::Config[:cookbook_path])
-      bags = Dir[File.join(cookbooks, 'data_bags', '/*')]
-      upload_all_data_bags(bags)
+      bags = []
+      data_bag_path = [Chef::Config[:data_bag_path]].flatten
+        data_bag_path.each do |path|
+          bag = Dir[File.join(path, '/*')]
+          bags << bag
+        end
+      upload_all_data_bags(bags.flatten)
     end
 
     private

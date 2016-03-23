@@ -58,12 +58,12 @@ module Chefdepartie
 
     def to_key(path)
       case path
-      when /\/data_bags\//
-        path.gsub(/.*data_bags/, 'data').gsub('.json', '')
+      when /data_bags[^\/]*\//
+        path.gsub(/.*data_bags([^\/]*)/, 'data').gsub('.json', '')
       when /\/roles\//
         File.join('roles', path.gsub(/.*roles\//, '').gsub('/', '--').gsub('.rb', ''))
       when /cookbooks[^\/]*\//
-        path.gsub(/.*cookbooks([^\/]*)/, 'cookbooks\1')
+        path.gsub(/.*cookbooks([^\/]*)/, 'cookbooks')
       end
     end
   end
