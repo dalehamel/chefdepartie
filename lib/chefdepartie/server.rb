@@ -43,6 +43,7 @@ module Chefdepartie
       Chef::Config.from_file(config_file) if !config_file.empty? && File.exist?(config_file)
 
       config = kwargs[:config]
+      Chef::Config.log_level  :error
       # Load config from hash
       if config && config.is_a?(Hash)
         config[:node_name] ||= 'chef-zero'
