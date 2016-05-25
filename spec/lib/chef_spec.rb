@@ -9,7 +9,7 @@ RSpec.describe Chefdepartie::Runner do
     it 'can cache uploads' do
       cache = Dir.mktmpdir
       expect{Chefdepartie.run(background: true, config: chef_config, cache: cache)}.to output(/Ready/).to_stdout
-      expect{Chefdepartie.run(background: true, config: chef_config, cache: cache)}.to output("Uploading roles\nUploading databags\nUploading librarian cookbooks\nUploading site cookbooks\nReady\n").to_stdout
+      expect{Chefdepartie.run(background: true, config: chef_config, cache: cache)}.to output("Uploading roles\nUploading databags\nUploading dependency cookbooks\nUploading site cookbooks\nReady\n").to_stdout
     end
   end
 end
