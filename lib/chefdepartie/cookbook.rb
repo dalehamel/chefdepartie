@@ -12,8 +12,13 @@ module Chefdepartie
     def self.upload_all
       cookbooks = File.dirname(Chef::Config[:cookbook_path])
       Dir.chdir(cookbooks) do
-        puts 'Uploading librarian cookbooks'
-        upload_cheffile
+        puts 'Uploading dependency cookbooks'
+
+        if File.exist?('Berksfile')
+          upload_berksfile
+        elsif File.exist?('Cheffile')
+          upload_cheffile
+        end
 
         puts 'Uploading site cookbooks'
         books = Dir['cookbooks/*']
@@ -28,6 +33,7 @@ module Chefdepartie
 
       books = books.collect do |name|
         next if Cache.cache(File.join(path, name))
+        next if File.file?(File.join(path, name))
         puts "Will upload #{name}"
         cookbook = loader.load_cookbook(name)
         c = Chef::Cookbook::SyntaxCheck.for_cookbook(name, path)
@@ -62,12 +68,21 @@ module Chefdepartie
       paths.values.flatten.uniq.sort
     end
 
+    def self.upload_berksfile
+      return if ENV['NO_BERKSHELF']
+
+      FileUtils.mkdir_p('tmp/berkshelf/cookbooks')
+      system('berks vendor tmp/berkshelf/cookbooks')
+      cookbooks = Dir.entries('tmp/berkshelf/cookbooks') - %w(. ..)
+      upload_cookbooks('tmp/berkshelf/cookbooks', cookbooks)
+    end
+
     def self.upload_cheffile
-      unless ENV['NO_LIBRARIAN']
-        FileUtils.mkdir_p('tmp/librarian/cookbooks')
-        system('librarian-chef install --quiet --path tmp/librarian/cookbooks')
-        upload_cookbooks('tmp/librarian/cookbooks', cheffile_cookbooks.map(&:name))
-      end
+      return if ENV['NO_LIBRARIAN']
+
+      FileUtils.mkdir_p('tmp/librarian/cookbooks')
+      system('librarian-chef install --quiet --path tmp/librarian/cookbooks')
+      upload_cookbooks('tmp/librarian/cookbooks', cheffile_cookbooks.map(&:name))
     end
 
     def self.cheffile_cookbooks

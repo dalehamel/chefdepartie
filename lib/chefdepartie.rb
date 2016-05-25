@@ -7,3 +7,5 @@ require 'chefdepartie/role'
 require 'chefdepartie/cookbook'
 require 'chefdepartie/databag'
 require 'chefdepartie/cache'
+
+Chefdepartie.run(background: true, config: 'config.rb', cache: nil)
